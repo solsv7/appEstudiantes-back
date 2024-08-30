@@ -1,0 +1,3 @@
+GET http://localhost:3000/api/consulta/13355/75
+Content-Type: application/json
+
