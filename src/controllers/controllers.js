@@ -1,16 +1,5 @@
 const conexion = require('../db');
 
-exports.login = async (req, res) => {
-  const { Documento, Contrasena } = req.body;
-  try {
-    const result = await conexion.query(`SELECT * FROM Alumnos WHERE Documento = ${Documento}`);
-    
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: 'Database query failed' });
-  }
-};
-
 exports.consultaCursadaPorId = async (req, res) => {
   try {
     const alumnoId = req.params.id;
@@ -33,8 +22,6 @@ exports.consultaCursadaPor2Id = async (req, res) => {
   try {
     const permiso = req.params.permiso;
     const carrera = req.params.carrera;
-
-    console.log(permiso, carrera);
 
     const result = await conexion.query(`
       SELECT Materias.Curso, Materias.Nombre, Finales.Division, Finales.Parcial1, Finales.Recuperatorio1, Finales.Parcial2, Finales.Recuperatorio2, Finales.Practico1, Finales.Practico2, Finales.Practico3, Finales.Practico4, Finales.Practico5, Personal.Nombre, Finales.AsistenciaPorcentaje, Finales.AsistenciaHasta 
