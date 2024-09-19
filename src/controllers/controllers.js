@@ -12,7 +12,7 @@ exports.consultaCursadaPorId = async (req, res) => {
     res.json(result);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'Todo culpa de Tomas Ferrari' });
+    res.status(500).json({ error: error.message });
   }
 };
 
