@@ -1,4 +1,5 @@
 const conexion = require('../db');
+const { format } = require('date-fns'); // Necesitarás instalar esta librería para formatear la fecha
 
 exports.consultaCursadaPorId = async (req, res) => {
   try {
@@ -18,7 +19,7 @@ exports.consultaCursadaPorId = async (req, res) => {
 
 
 
-exports.consultaCursadaPor2Id = async (req, res) => {
+exports.consultaCursadaPorAlumnoYCarrera = async (req, res) => {
   try {
     const permiso = req.params.permiso;
     const carrera = req.params.carrera;
@@ -47,15 +48,45 @@ exports.consultaCursadaPor2Id = async (req, res) => {
   }
 };
 
-exports.agregarParametro = async (req, res) => {
-  const { TurnoLlamado, MesasPosibles } = req.body;
+
+exports.consultaFinalesPorAlumnosYCarrera = async (req, res) => {
   try {
+    const permiso = req.params.permiso;
+    const carrera = req.params.carrera;
+
+    // Obtenemos la fecha de hoy y la formateamos a MM/DD/YYYY
+    const fecha_de_hoy = format(new Date(), 'MM/dd/yyyy'); 
     
-    //await db.query('INSERT INTO Parametros (TurnoLlamado, MesasPosibles) VALUES (?, ?)', [TurnoLlamado, MesasPosibles]);
+
+    // QUERY DE LA DB EN ACCESS QUE TRAIGA LOS DATOS 
+    const query = `
+      SELECT Materias.Codigo, Materias.Curso, Finales.Ano, Finales.Asistencia, Finales.PerdioTurno, 
+            Mesas.Numero, Materias.Abreviatura, Format(Mesas.Fecha, 'dd/mm/yyyy') AS Fecha, 
+            Format(Mesas.Hora, 'Short Time') AS Hora, Mesas.Lugar, Mesas.Impresas, 
+            Personal.Nombre AS Titular, Finales.Libre
+      FROM (Materias INNER JOIN (Mesas INNER JOIN Personal ON Mesas.Titular = Personal.Codigo) 
+            ON Materias.Codigo = Mesas.Materia) 
+      INNER JOIN Finales ON (Mesas.Division = Finales.Division) AND (Materias.Codigo = Finales.Materia)
+      WHERE (((Mesas.Fecha) >= #01/01/2024#) 
+      AND ((Mesas.Turno) = (SELECT TurnoLlamado FROM Parametros)) 
+      AND ((Mesas.Ano) = (SELECT AñoLlamado FROM Parametros)) 
+      AND ((Finales.Alumno) = 13000) 
+      AND ((Finales.Cursada) = True) 
+      AND ((Finales.Aprobada) = False) 
+      AND ((Finales.Promocion) = False) 
+      AND ((Materias.Carrera) = 81))
+      ORDER BY Materias.Curso, Mesas.Fecha;
+    `;
+
+    const result = await conexion.query(query);
     
-    const result = await conexion.query(`INSERT INTO Parametros (TurnoLlamado, MesasPosibles) VALUES (${TurnoLlamado}, ${MesasPosibles})`);
-    res.status(201).json({ message: 'Item created' });
+    if (result.length === 0) {
+      return res.json({ mensaje: 'No hay mesas de finales disponibles' });
+    }
+
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Database insert failed' });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };

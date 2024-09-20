@@ -5,9 +5,7 @@ const router = express.Router();
 const rutas = require('./rutas');
 
 // Usa las rutas específicas
-router.use('/login', rutas);
-router.use('/consulta', rutas);
-router.use('/agregarParametro', rutas);
+router.use('/session', rutas);
 
 
 module.exports = router;

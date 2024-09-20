@@ -24,7 +24,19 @@ exports.login = async (req, res) => {
 
         // Comparamos las contraseñas
         if (result.Contrasena === contrasenaEncriptada) {
-            res.status(200).json(result);
+
+            const [datosAlumno] = await conexion.query(`
+                SELECT Alumnos.Permiso, Alumnos.Nombre, Alumnos.Documento, Alumnos.Domicilio, Alumnos.Localidad, Alumnos.Telefono, Alumnos.Correo, Alumnos.BloquearAutogestion
+                FROM Alumnos
+                WHERE Alumnos.Permiso = ${result.Permiso}`);
+    
+            const [datosCarrera] = await conexion.query(`
+                SELECT Carreras.Codigo, Carreras.Nombre, CarrerasHechas.Ingreso
+                FROM Carreras
+                INNER JOIN CarrerasHechas ON Carreras.Codigo = CarrerasHechas.Carrera
+                WHERE CarrerasHechas.Condición = 1 AND CarrerasHechas.Permiso = ${result.Permiso}`);
+                
+            res.status(200).json({datosAlumno, datosCarrera});
         } else {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
