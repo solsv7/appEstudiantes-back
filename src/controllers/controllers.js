@@ -60,22 +60,16 @@ exports.consultaFinalesPorAlumnosYCarrera = async (req, res) => {
 
     // QUERY DE LA DB EN ACCESS QUE TRAIGA LOS DATOS 
     const query = `
-      SELECT Materias.Codigo, Materias.Curso, Finales.Ano, Finales.Asistencia, Finales.PerdioTurno, 
-            Mesas.Numero, Materias.Abreviatura, Format(Mesas.Fecha, 'dd/mm/yyyy') AS Fecha, 
-            Format(Mesas.Hora, 'Short Time') AS Hora, Mesas.Lugar, Mesas.Impresas, 
-            Personal.Nombre AS Titular, Finales.Libre
-      FROM (Materias INNER JOIN (Mesas INNER JOIN Personal ON Mesas.Titular = Personal.Codigo) 
-            ON Materias.Codigo = Mesas.Materia) 
-      INNER JOIN Finales ON (Mesas.Division = Finales.Division) AND (Materias.Codigo = Finales.Materia)
-      WHERE (((Mesas.Fecha) >= #01/01/2024#) 
-      AND ((Mesas.Turno) = (SELECT TurnoLlamado FROM Parametros)) 
-      AND ((Mesas.Ano) = (SELECT AñoLlamado FROM Parametros)) 
-      AND ((Finales.Alumno) = 13000) 
-      AND ((Finales.Cursada) = True) 
-      AND ((Finales.Aprobada) = False) 
-      AND ((Finales.Promocion) = False) 
-      AND ((Materias.Carrera) = 81))
-      ORDER BY Materias.Curso, Mesas.Fecha;
+    SELECT Ma.Codigo, Ma.Curso, F.Ano, F.Asistencia, F.PerdioTurno, Me.Numero, Ma.Abreviatura, Format(Me.Fecha,'dd/mm/yyyy') 
+    
+    AS Fecha, Format(Me.Hora,'Short Time') AS Hora, Me.Lugar, Me.Impresas, P.Nombre AS Titular, F.Libre, IIf((SELECT count( Inscripciones.Alumno) 
+
+    FROM Inscripciones WHERE Inscripciones.FechaBorrado Is Null AND Inscripciones.Alumno=13000 AND Inscripciones.Mesa=Me.Numero) > 0, True, False) AS Inscripto
+
+    FROM (Materias Ma INNER JOIN (Mesas Me INNER JOIN Personal P ON Me.Titular = P.Codigo) ON Ma.Codigo = Me.Materia) INNER JOIN Finales F ON (Me.Division = F.Division) AND (Ma.Codigo = F.Materia)
+
+    WHERE (((Me.Fecha)>=${fecha_de_hoy}) AND ((Me.Turno)=(SELECT TurnoLlamado FROM Parametros)) AND ((Me.Ano)=(SELECT AñoLlamado FROM Parametros)) AND ((F.Alumno)=${permiso}) AND ((F.Cursada)=True) AND ((F.Aprobada)=False) AND ((F.Promocion)=False) AND ((Ma.Carrera)=${carrera}))
+    ORDER BY Ma.Curso, Me.Fecha;
     `;
 
     const result = await conexion.query(query);
