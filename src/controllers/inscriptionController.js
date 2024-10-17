@@ -1,14 +1,17 @@
-const conexion = require('../db');
+const connect = require('../db');
 const { format } = require('date-fns'); // Para formatear la fecha
 
 exports.deleteInscription = async (req, res) => {
   try {
     const { Mesa, Alumno } = req.body;
 
+    // Obtener la conexión
+    const conexion = await connect();
+
     // Verificar si la mesa está impresa
-    const [mesa] = await conexion.query(`SELECT Impresas FROM Mesas WHERE Mesa = ${Mesa}`);
-    
-    if (!mesa || mesa.Impresa === 0) {
+    const [mesa] = await conexion.query(`SELECT Impresas FROM Mesas WHERE Numero = ${Mesa}`);
+
+    if (!mesa || mesa.Impresas === 0) {
       return res.json({ mensaje: 'La mesa no está impresa o no existe.' });
     }
 

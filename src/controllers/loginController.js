@@ -1,11 +1,13 @@
-const conexion = require('../db');
+const connect = require('../db');
 const { encriptadores } = require('../encripter.js');
 
 exports.login = async (req, res) => {
     const { Documento, Contrasena } = req.body;
 
-
     try {
+        // Obtener la conexión
+        const conexion = await connect();
+
         // Usar parámetros en la consulta SQL para evitar inyección SQL
         const [result] = await conexion.query(`SELECT * FROM Alumnos WHERE Documento = ${Documento}`);
 
@@ -24,7 +26,6 @@ exports.login = async (req, res) => {
 
         // Comparamos las contraseñas
         if (result.Contrasena === contrasenaEncriptada) {
-
             const [datosAlumno] = await conexion.query(`
                 SELECT Alumnos.Permiso, Alumnos.Nombre, Alumnos.Documento, Alumnos.Domicilio, Alumnos.Localidad, Alumnos.Telefono, Alumnos.Correo, Alumnos.BloquearAutogestion
                 FROM Alumnos
@@ -36,7 +37,7 @@ exports.login = async (req, res) => {
                 INNER JOIN CarrerasHechas ON Carreras.Codigo = CarrerasHechas.Carrera
                 WHERE CarrerasHechas.Condición = 1 AND CarrerasHechas.Permiso = ${result.Permiso}`);
                 
-            res.status(200).json({datosAlumno, datosCarrera});
+            res.status(200).json({ datosAlumno, datosCarrera });
         } else {
             return res.status(401).json({ error: 'Contraseña incorrecta' });
         }
