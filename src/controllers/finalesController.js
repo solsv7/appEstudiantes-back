@@ -169,4 +169,60 @@ exports.deleteInscription = async (req, res) => {
   }
 };
 
+// Consultamos asignaturas disponibles para matriculacion
+exports.consultaAsignaturasPendientes = async (req, res) => {
+  try {
+    const permiso = req.params.permiso; // ID del alumno
+    const carrera = req.params.carrera; // ID de la carrera
 
+    const conexion = await connect(); // Conectar a la base de datos
+
+    // Verificar correlatividades pendientes
+    const queryCorrelativas = `
+      SELECT Correlativas.Materia, Materias.Nombre
+      FROM Correlativas
+      INNER JOIN Materias ON Correlativas.MateriaCorrelativa = Materias.Codigo
+      WHERE Correlativas.Carrera = ${carrera}
+        AND Correlativas.Materia NOT IN (
+          SELECT Aprobadas.Materia
+          FROM Aprobadas
+          WHERE Aprobadas.Alumno = ${permiso}
+        )
+    `;
+
+    const correlativasPendientes = await conexion.query(queryCorrelativas);
+
+    if (correlativasPendientes.length > 0) {
+      return res.json({
+        mensaje: 'El alumno no ha cumplido con las correlatividades necesarias.',
+        correlativasPendientes: correlativasPendientes.map(c => c.Nombre)
+      });
+    }
+
+    // Consultar asignaturas no aprobadas y estado de matriculación
+    const queryAsignaturas = `
+      SELECT Asignaturas.Nombre AS Asignatura,
+             IIf(Cursadas.Matriculado IS NULL, 'No', 'Sí') AS Matriculado
+      FROM Asignaturas
+      LEFT JOIN Cursadas ON Asignaturas.Codigo = Cursadas.Asignatura
+        AND Cursadas.Alumno = ${permiso}
+      WHERE Asignaturas.Carrera = ${carrera}
+        AND Asignaturas.Codigo NOT IN (
+          SELECT Aprobadas.Asignatura
+          FROM Aprobadas
+          WHERE Aprobadas.Alumno = ${permiso}
+        )
+    `;
+
+    const asignaturasPendientes = await conexion.query(queryAsignaturas);
+
+    if (asignaturasPendientes.length === 0) {
+      return res.json({ mensaje: 'No hay asignaturas pendientes o ya están todas aprobadas.' });
+    }
+
+    res.json(asignaturasPendientes); // Devolver asignaturas pendientes con su estado de matriculación
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error al realizar la operación', error: error.message });
+  }
+};
