@@ -1,0 +1,8 @@
+DELETE  http://localhost:3000/api/session/eliminarMatriculacion
+Content-Type: application/json
+
+{
+    "Alumno": 14146,
+    "Materia": 740103,
+    "Division": 1
+}
