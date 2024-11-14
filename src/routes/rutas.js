@@ -14,6 +14,7 @@ router.put('/delete-inscription', finalesController.deleteInscription);
 router.put('/changePassword', updateUserInfo.changePassword)
 router.put('/changeUserInfo/:permiso', updateUserInfo.changeUserInfo)
 router.post('/inscribirfinal/', finalesController.inscribirAlumnosPorId);
+router.post('/matricular', matriculation.matriculate);
 router.delete('/eliminarMatriculacion/', matriculation.eliminarMatriculacion);
 
 
