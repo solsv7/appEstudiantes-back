@@ -2,6 +2,6 @@ POST http://localhost:3000/api/session/login
 Content-Type: application/json
 
 {
-    "Documento" : "41717495",
-    "Contrasena" : "4321"
+    "Documento" : "37299766",
+    "Contrasena" : "1234"
 }

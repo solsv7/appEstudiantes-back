@@ -1,5 +1,6 @@
 # Node modules
 node_modules/
+rest/
 
 # DB
 InstitutoAlumnos.ldb

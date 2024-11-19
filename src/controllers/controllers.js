@@ -23,7 +23,7 @@ exports.consultaCursadaPorAlumnoYCarrera = async (req, res) => {
     const conexion = await connect(); // Conectar a la base de datos
 
     const result = await conexion.query(`
-      SELECT Materias.Curso, Materias.Nombre, Finales.Division, Finales.Parcial1, Finales.Recuperatorio1, Finales.Parcial2, Finales.Recuperatorio2, Finales.Practico1, Finales.Practico2, Finales.Practico3, Finales.Practico4, Finales.Practico5, Personal.Nombre, Finales.AsistenciaPorcentaje, Finales.AsistenciaHasta 
+      SELECT Materias.Curso, Materias.Nombre as Materia, Finales.Division, Finales.Parcial1, Finales.Recuperatorio1, Finales.Parcial2, Finales.Recuperatorio2, Finales.Practico1, Finales.Practico2, Finales.Practico3, Finales.Practico4, Finales.Practico5, Personal.Nombre as Profesor, Finales.AsistenciaPorcentaje, Finales.AsistenciaHasta 
       FROM (Finales 
       INNER JOIN Materias ON Finales.Materia = Materias.Codigo) 
       INNER JOIN Personal ON Finales.Profesor = Personal.Codigo 
