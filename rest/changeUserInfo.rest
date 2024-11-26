@@ -2,8 +2,8 @@ PUT http://localhost:3000/api/session/changeUserInfo/13114
 Content-Type: application/json
 
 {
-    "phoneNumber": 1,
-    "email": "ivo@example.com",
-    "adress": "Almafuerte 600"
+    "phoneNumber": 123456789,
+    "email": "juan@example.com",
+    "adress": "Almafuerte 1"
 }
 

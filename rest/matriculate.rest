@@ -1,0 +1,10 @@
+POST http://localhost:3000/api/session/matricular
+Content-Type: application/json
+
+{
+    "Alumno":13114,
+    "Materia": 750108,
+    "Division": 1,
+    "Libre": false,
+    "Profesor": 447
+}
