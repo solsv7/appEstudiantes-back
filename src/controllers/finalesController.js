@@ -226,3 +226,43 @@ exports.consultaAsignaturasPendientes = async (req, res) => {
     res.status(500).json({ mensaje: 'Error al realizar la operación', error: error.message });
   }
 };
+exports.consultaFinalesRendidos = async (req, res) => {
+  try {
+    const permiso = req.params.permiso;
+    const carrera = req.params.carrera;
+
+    const conexion = await connect();
+
+    const query = `
+      SELECT DISTINCT
+        Ma.Codigo,
+        Ma.Nombre AS Materia,
+        Ma.Abreviatura,
+        F.Ano,
+        F.Nota,
+        F.Libre,
+        F.Aprobada,
+        F.PerdioTurno
+      FROM 
+        Materias Ma 
+        INNER JOIN Finales F ON Ma.Codigo = F.Materia
+      WHERE 
+        F.Alumno = ${permiso} 
+        AND Ma.Carrera = ${carrera}
+        AND F.Aprobada = True
+      ORDER BY 
+        Ma.Nombre;
+    `;
+
+    const result = await conexion.query(query);
+
+    if (result.length === 0) {
+      return res.json({ mensaje: 'No hay finales rendidos' });
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};

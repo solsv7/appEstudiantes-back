@@ -20,7 +20,7 @@ router.put('/changeUserInfo/:permiso', updateUserInfo.changeUserInfo)
 router.post('/inscribirfinal/', finalesController.inscribirAlumnosPorId);
 router.post('/matricular', matriculationController.matriculate);
 router.delete('/eliminarMatriculacion/', matriculationController.eliminarMatriculacion);
-
+router.get('/finales-rendidos/:permiso/:carrera', finalesController.consultaFinalesRendidos);
 
 
 module.exports = router;
